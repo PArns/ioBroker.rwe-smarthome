@@ -60,8 +60,16 @@ adapter.on('ready', function () {
             if (res) {
                 smartHomeInstance.init(initSmartHome);
                 smartHomeInstance.on("StatusChanged", function (aDevice) {
-                    adapter.log.info("STATE CHANGED FOR " + aDevice.Name  + " TO " + aDevice.getState());
-                    adapter.setState(aDevice.Id, {val: aDevice.getState(), ack: true});
+
+                    switch (aDevice.Type) {
+                        case "WindowDoorSensor":
+                            adapter.setState(aDevice.Id, {val: aDevice.getFriendlyState(), ack: true});
+                            break;
+                        default:
+                            adapter.setState(aDevice.Id, {val: aDevice.getState(), ack: true});
+                            break;
+                    }
+
                 });
 
                 // in this template all states changes inside the adapters namespace are subscribed
@@ -83,23 +91,46 @@ function initSmartHome() {
 
         switch (device.Type) {
             case "SwitchActuator":
-                addSwitch(device);
+                addSwitchActuator(device);
                 break;
             case "GenericActuator":
                 addGenericActuator(device);
                 break;
+            case "AlarmActuator":
+                addAlarmActuator(device);
+                break;
+            case "RollerShutterActuator":
+                addRollerShutterActuator(device);
+                break;
+            case "RoomHumiditySensor":
+                addRoomHumiditySensor(device);
+                break;
+            case "RoomTemperatureSensor":
+                addRoomTemperatureSensor(device);
+                break;
+            case "WindowDoorSensor":
+                addWindowDoorSensor(device);
+                break;
+
+            case "HumiditySensor":
+            case "TemperatureSensor":
+            case "PushButtonSensor":
+            case "SmokeDetectorSensor":
+            case "ValveActuator":
+                // ignore
+                break;
             default:
-            //adapter.log.info("UNKNOWN DEVICE TYPE " + device.Type);
+                adapter.log.info("UNKNOWN DEVICE TYPE " + device.Type);
         }
     });
 }
 
-function addSwitch(aSwitch) {
+function addSwitchActuator(aSwitch) {
     var role = null;
 
     switch (aSwitch.ActCls) {
         case "Light":
-            role = "switch";
+            role = "switch"; // <- light.switch is not homekit compatible
             break;
         default:
             role = "switch";
@@ -164,4 +195,105 @@ function addGenericActuator(aActuator) {
     });
 
     adapter.setState(aActuator.Id, {val: aActuator.getState(), ack: true});
+}
+
+function addAlarmActuator(aActuator) {
+    adapter.setObject(aActuator.Id, {
+        type: "channel",
+        common: {
+            name: aActuator.Name,
+            type: "boolean",
+            role: "sensor.fire",
+        },
+        native: {
+            id: aActuator.Id
+        }
+    });
+
+    adapter.setState(aActuator.Id, {val: aActuator.getState(), ack: true});
+}
+
+function addRollerShutterActuator(aActuator) {
+    adapter.setObject(aActuator.Id, {
+        type: "state",
+        common: {
+            name: aActuator.Name,
+            type: "number",
+            role: "value.position",
+            write: false,
+            unit: "%"
+        },
+        native: {
+            id: aActuator.Id
+        }
+    });
+
+    adapter.setState(aActuator.Id, {val: aActuator.getState(), ack: true});
+}
+
+function addRoomHumiditySensor(aSensor) {
+    adapter.setObject(aSensor.Id, {
+        type: "channel",
+        common: {
+            name: aSensor.Name,
+            type: "number",
+            role: "value.humidity",
+            write: false,
+            unit: "%"
+        },
+        native: {
+            id: aSensor.Id
+        }
+    });
+
+    adapter.setState(aSensor.Id, {val: aSensor.getState(), ack: true});
+}
+
+function addRoomTemperatureSensor(aSensor) {
+    adapter.setObject(aSensor.Id, {
+        type: "channel",
+        common: {
+            name: aSensor.Name,
+            type: "number",
+            role: "value.temperature",
+            write: false,
+            unit: "°C"
+        },
+        native: {
+            id: aSensor.Id
+        }
+    });
+
+    adapter.setState(aSensor.Id, {val: aSensor.getState(), ack: true});
+}
+
+function addWindowDoorSensor(aSensor) {
+    var role = null;
+
+    switch (aSensor.Installation) {
+        case "Window":
+            role = "sensor.window";
+            break;
+        case "Door":
+            role = "sensor.door";
+            break;
+        default:
+            adapter.log.info(JSON.stringify(aSensor.Installation));
+            role = "switch";
+    }
+
+    adapter.setObject(aSensor.Id, {
+        type: "channel",
+        common: {
+            name: aSensor.Name,
+            type: 'string',
+            role: role,
+            write: false
+        },
+        native: {
+            id: aSensor.Id
+        }
+    });
+
+    adapter.setState(aSensor.Id, {val: aSensor.getFriendlyState(), ack: true});
 }
