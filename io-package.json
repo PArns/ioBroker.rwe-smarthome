@@ -1,0 +1,30 @@
+{
+  "common": {
+    "name": "rwe-smarthome",
+    "version": "0.0.1",
+    "title": "RWE Smarthome Adapter",
+    "desc": {
+      "en": "ioBroker RWE Smarthome Adapter",
+      "de": "ioBroker RWE Smarthome Adapter",
+      "ru": "ioBroker RWE Smarthome драйвер как образец"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "rwe-smarthome.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/PArns/ioBroker.rwe-smarthome/master/admin/rwe-smarthome.png",
+    "keywords": [
+      "rwe-smarthome"
+    ],
+    "readme": "https://github.com/PArns/ioBroker.rwe-smarthome/blob/master/README.md",
+    "loglevel": "info",
+    "type": "hardware"
+  },
+  "native": {
+    "ip": "",
+    "user": "",
+    "password": ""
+  },
+  "objects": [
+  ]
+}

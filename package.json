@@ -1,0 +1,45 @@
+{
+  "name": "iobroker.rwe-smarthome",
+  "version": "0.0.1",
+  "description": "ioBroker rwe-smarthome Adapter",
+  "author": {
+    "name": "Patrick Arns",
+    "email": "iobroker@patrick-arns.de"
+  },
+  "contributors": [
+    {
+      "name": "Patrick Arns",
+      "email": "iobroker@patrick-arns.de"
+    }
+  ],
+  "homepage": "https://github.com/PArns/ioBroker.rwe-smarthome",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "rwe-smarthome",
+    "Smart Home",
+    "home automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PArns/ioBroker.rwe-smarthome"
+  },
+  "dependencies": {
+    "node-rwe-smarterhome-lib": "0.0.8"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-replace": "^0.9.3",
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-jscs": "^2.0.0",
+    "grunt-http": "^1.6.0",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-compress": "^0.13.0",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-exec": "^0.4.6"
+  },
+  "bugs": {
+    "url": "https://github.com/PArns/ioBroker.rwe-smarthome/issues"
+  },
+  "readmeFilename": "README.md"
+}
