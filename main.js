@@ -1,5 +1,14 @@
 "use strict";
 
+String.prototype.capitalize = function () {
+    return this.charAt(0).toUpperCase() + this.toLowerCase().slice(1);
+};
+
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
 var utils = require(__dirname + '/lib/utils'); // Get common adapter utils
 var smartHome = require("node-rwe-smarterhome-lib");
 var adapter = utils.adapter('rwe-smarthome');
@@ -17,13 +26,12 @@ adapter.on('unload', function (callback) {
 });
 
 // is called if a subscribed object changes
-adapter.on('objectChange', function (id, obj) {
-    // Warning, obj can be null if it was deleted
-    // adapter.log.info('objectChange ' + id + ' ' + JSON.stringify(obj));
-});
+adapter.on('objectChange', statusChanged);
 
 // is called if a subscribed state changes
-adapter.on('stateChange', function (id, state) {
+adapter.on('stateChange', statusChanged);
+
+function statusChanged(id, state) {
     adapter.getForeignObject(id, function (err, obj) {
         if (err) {
             adapter.log.error(err);
@@ -32,11 +40,16 @@ adapter.on('stateChange', function (id, state) {
                 var device = smartHomeInstance.getDeviceById(obj.native.id);
 
                 if (device)
-                    device.setState(state.val);
+                    device.setState(state.val, function () {
+                        adapter.setState(getDeviceName(device), {
+                            val: obj.native.friendlyState ? device.getFriendlyState() : device.getState(),
+                            ack: true
+                        });
+                    });
             }
         }
     });
-});
+}
 
 // Some message was sent to adapter instance over message box. Used by email, pushover, text2speech, ...
 adapter.on('message', function (obj) {
@@ -60,16 +73,14 @@ adapter.on('ready', function () {
             if (res) {
                 smartHomeInstance.init(initSmartHome);
                 smartHomeInstance.on("StatusChanged", function (aDevice) {
-
-                    switch (aDevice.Type) {
-                        case "WindowDoorSensor":
-                            adapter.setState(aDevice.Id, {val: aDevice.getFriendlyState(), ack: true});
-                            break;
-                        default:
-                            adapter.setState(aDevice.Id, {val: aDevice.getState(), ack: true});
-                            break;
-                    }
-
+                    adapter.getObject(getDeviceName(aDevice), function (err, obj) {
+                        if (obj) {
+                            adapter.setState(getDeviceName(aDevice), {
+                                val: obj.native.friendlyState ? aDevice.getFriendlyState() : aDevice.getState(),
+                                ack: true
+                            });
+                        }
+                    });
                 });
 
                 // in this template all states changes inside the adapters namespace are subscribed
@@ -87,8 +98,6 @@ function initSmartHome() {
     var devices = smartHomeInstance.devices;
 
     devices.forEach(function (device) {
-        //adapter.log.info(device.Name + " (" + device.Id + ", " + device.Type + "): " + device.getFriendlyState());
-
         switch (device.Type) {
             case "SwitchActuator":
                 addSwitchActuator(device);
@@ -125,6 +134,37 @@ function initSmartHome() {
     });
 }
 
+function getDeviceName(aDevice) {
+    var room = smartHomeInstance.getRoomById(aDevice.LCID);
+    return room.Name.capitalize() + "." + aDevice.Name.replaceAll(" ", "-");
+}
+
+function addDevice(aDevice, common, type, useFriendlyState) {
+    var deviceName = getDeviceName(aDevice);
+
+    if (typeof type == "undefined")
+        type = "state";
+
+    var currentState = false;
+
+    if (typeof useFriendlyState == "undefined") {
+        currentState = aDevice.getState();
+        useFriendlyState = false;
+    } else if (useFriendlyState === true)
+        currentState = aDevice.getFriendlyState()
+
+    adapter.setObjectNotExists(deviceName, {
+        type: type,
+        common: common,
+        native: {
+            id: aDevice.Id,
+            friendlyState: useFriendlyState
+        }
+    });
+
+    adapter.setState(deviceName, {val: currentState, ack: true});
+}
+
 function addSwitchActuator(aSwitch) {
     var role = null;
 
@@ -136,19 +176,11 @@ function addSwitchActuator(aSwitch) {
             role = "switch";
     }
 
-    adapter.setObject(aSwitch.Id, {
-        type: "state",
-        common: {
-            name: aSwitch.Name,
-            type: 'boolean',
-            role: role
-        },
-        native: {
-            id: aSwitch.Id
-        }
+    addDevice(aSwitch, {
+        name: aSwitch.Name,
+        type: 'boolean',
+        role: role
     });
-
-    adapter.setState(aSwitch.Id, {val: aSwitch.getState(), ack: true});
 }
 
 function addGenericActuator(aActuator) {
@@ -179,92 +211,53 @@ function addGenericActuator(aActuator) {
             break;
         default:
             console.log("UNKNOWN PROPERTY FOR GENERIC SENSOR " + aActuator.State.State.PropertyType);
+            return;
     }
 
-    adapter.setObject(aActuator.Id, {
-        type: "state",
-        common: {
-            name: aActuator.Name,
-            type: type,
-            role: role,
-            write: write
-        },
-        native: {
-            id: aActuator.Id
-        }
+    addDevice(aActuator, {
+        name: aActuator.Name,
+        type: type,
+        role: role,
+        write: write
     });
-
-    adapter.setState(aActuator.Id, {val: aActuator.getState(), ack: true});
 }
 
 function addAlarmActuator(aActuator) {
-    adapter.setObject(aActuator.Id, {
-        type: "channel",
-        common: {
-            name: aActuator.Name,
-            type: "boolean",
-            role: "sensor.fire",
-        },
-        native: {
-            id: aActuator.Id
-        }
-    });
-
-    adapter.setState(aActuator.Id, {val: aActuator.getState(), ack: true});
+    addDevice(aActuator, {
+        name: aActuator.Name,
+        type: "boolean",
+        role: "sensor.fire"
+    }, "channel");
 }
 
 function addRollerShutterActuator(aActuator) {
-    adapter.setObject(aActuator.Id, {
-        type: "state",
-        common: {
-            name: aActuator.Name,
-            type: "number",
-            role: "value.position",
-            write: false,
-            unit: "%"
-        },
-        native: {
-            id: aActuator.Id
-        }
+    addDevice(aActuator, {
+        name: aActuator.Name,
+        type: "number",
+        role: "value.position",
+        write: false,
+        unit: "%"
     });
-
-    adapter.setState(aActuator.Id, {val: aActuator.getState(), ack: true});
 }
 
 function addRoomHumiditySensor(aSensor) {
-    adapter.setObject(aSensor.Id, {
-        type: "channel",
-        common: {
-            name: aSensor.Name,
-            type: "number",
-            role: "value.humidity",
-            write: false,
-            unit: "%"
-        },
-        native: {
-            id: aSensor.Id
-        }
+    addDevice(aSensor, {
+        name: aSensor.Name,
+        type: "number",
+        role: "value.humidity",
+        write: false,
+        unit: "%"
     });
-
-    adapter.setState(aSensor.Id, {val: aSensor.getState(), ack: true});
 }
 
 function addRoomTemperatureSensor(aSensor) {
-    adapter.setObject(aSensor.Id, {
-        type: "channel",
-        common: {
-            name: aSensor.Name,
-            type: "number",
-            role: "value.temperature",
-            write: false,
-            unit: "°C"
-        },
-        native: {
-            id: aSensor.Id
-        }
+    addDevice(aSensor, {
+        name: aSensor.Name,
+        type: "number",
+        role: "value.temperature",
+        write: false,
+        unit: "°C"
     });
-
-    adapter.setState(aSensor.Id, {val: aSensor.getState(), ack: true});
 }
 
 function addWindowDoorSensor(aSensor) {
@@ -282,18 +275,10 @@ function addWindowDoorSensor(aSensor) {
             role = "switch";
     }
 
-    adapter.setObject(aSensor.Id, {
-        type: "channel",
-        common: {
-            name: aSensor.Name,
-            type: 'string',
-            role: role,
-            write: false
-        },
-        native: {
-            id: aSensor.Id
-        }
-    });
-
-    adapter.setState(aSensor.Id, {val: aSensor.getFriendlyState(), ack: true});
+    addDevice(aSensor, {
+        name: aSensor.Name,
+        type: 'string',
+        role: role,
+        write: false
+    }, "channel", true);
 }
