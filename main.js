@@ -227,7 +227,7 @@ function addAlarmActuator(aActuator) {
         name: aActuator.Name,
         type: "boolean",
         role: "sensor.fire"
-    }, "channel");
+    });
 }
 
 function addRollerShutterActuator(aActuator) {
@@ -246,7 +246,9 @@ function addRoomHumiditySensor(aSensor) {
         type: "number",
         role: "value.humidity",
         write: false,
-        unit: "%"
+        unit: "%",
+        min: 0,
+        max: 100
     });
 }
 
@@ -279,6 +281,7 @@ function addWindowDoorSensor(aSensor) {
         name: aSensor.Name,
         type: 'string',
         role: role,
-        write: false
-    }, "channel", true);
+        write: false,
+        list: ["OPEN", "CLOSED"]
+    }, "state", true);
 }

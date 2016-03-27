@@ -1,8 +1,9 @@
 {
   "common": {
     "name": "rwe-smarthome",
-    "version": "0.0.3",
+    "version": "0.1.4",
     "title": "RWE Smarthome Adapter",
+    "license": "GPLv2",
     "desc": {
       "en": "ioBroker RWE Smarthome Adapter",
       "de": "ioBroker RWE Smarthome Adapter",
