@@ -18,8 +18,10 @@ var smartHomeInstance = null;
 // is called when adapter shuts down - callback has to be called under any circumstances!
 adapter.on('unload', function (callback) {
     try {
-        adapter.log.info('cleaned everything up...');
-        callback();
+        smartHomeInstance.shutdown(function () {
+            adapter.log.info('cleaned everything up...');
+            callback();
+        });
     } catch (e) {
         callback();
     }
@@ -88,6 +90,10 @@ adapter.on('ready', function () {
             } else {
                 adapter.log.error(JSON.stringify(error));
             }
+        });
+
+        smartHomeInstance.on("Debug", function (debugObject) {
+            adapter.log.info("DEBUG INFO: " + JSON.stringify(debugObject));
         });
     } else {
         adapter.log.error("RWE SmartHome is missing login data! Please go to the module admin and add login information");
