@@ -41,13 +41,16 @@ function statusChanged(id, state) {
             if (state && !state.ack) {
                 var device = smartHomeInstance.getDeviceById(obj.native.id);
 
-                if (device)
-                    device.setState(state.val, function () {
+                if (device) {
+                    var cVal = device.setState(state.val);
+
+                    if (cVal !== state.val) {
                         adapter.setState(getDeviceName(device), {
-                            val: obj.native.friendlyState ? device.getFriendlyState() : device.getState(),
+                            val: cVal,
                             ack: true
                         });
-                    });
+                    }
+                }
             }
         }
     });
@@ -74,7 +77,9 @@ adapter.on('ready', function () {
         smartHomeInstance.login(adapter.config.user, adapter.config.password, function (res, error) {
             if (res) {
                 smartHomeInstance.init(initSmartHome);
+
                 smartHomeInstance.on("StatusChanged", function (aDevice) {
+                    adapter.log.info("STATUS CHANGED " + aDevice.name + " " + aDevice.getFriendlyState());
                     adapter.getObject(getDeviceName(aDevice), function (err, obj) {
                         if (obj) {
                             adapter.setState(getDeviceName(aDevice), {
