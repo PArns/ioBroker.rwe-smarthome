@@ -6,6 +6,9 @@ This adapter can be used to add the RWE Smarthome central to ioBroker
 
 ## Changelog
 
+## 0.1.5
+    Backport for NodeJS 0.10
+
 ## 0.1.4
     minor communication fixes
 
