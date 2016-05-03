@@ -6,10 +6,12 @@ This adapter can be used to add the RWE Smarthome central to ioBroker
 
 ## Changelog
 
-### 0.1.3
-    updated underlying SmartHome lib
+## 0.1.4
     minor communication fixes
 
+### 0.1.3
+    updated underlying SmartHome lib
+    
 ### 0.1.2
     Fixed triggering of events during state change
     
