@@ -79,7 +79,6 @@ adapter.on('ready', function () {
                 smartHomeInstance.init(initSmartHome);
 
                 smartHomeInstance.on("StatusChanged", function (aDevice) {
-                    adapter.log.info("STATUS CHANGED " + aDevice.name + " " + aDevice.getFriendlyState());
                     adapter.getObject(getDeviceName(aDevice), function (err, obj) {
                         if (obj) {
                             adapter.setState(getDeviceName(aDevice), {
@@ -162,7 +161,7 @@ function addDevice(aDevice, common, type, useFriendlyState) {
         currentState = aDevice.getState();
         useFriendlyState = false;
     } else if (useFriendlyState === true)
-        currentState = aDevice.getFriendlyState()
+        currentState = aDevice.getFriendlyState();
 
     adapter.setObjectNotExists(deviceName, {
         type: type,
@@ -290,9 +289,8 @@ function addWindowDoorSensor(aSensor) {
 
     addDevice(aSensor, {
         name: aSensor.Name,
-        type: 'string',
+        type: "boolean",
         role: role,
-        write: false,
-        list: ["OPEN", "CLOSED"]
-    }, "state", true);
+        write: false
+    }, "state");
 }
