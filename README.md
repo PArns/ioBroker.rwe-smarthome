@@ -6,6 +6,9 @@ This adapter can be used to add the RWE Smarthome central to ioBroker
 
 ## Changelog
 
+## 0.1.7
+    Corrected device types for several sensors
+
 ## 0.1.6
     Added LuminanceSensor & RoomTemperatureActuator
 

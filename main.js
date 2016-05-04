@@ -272,7 +272,7 @@ function addRoomHumiditySensor(aSensor) {
     addDevice(aSensor, {
         name: aSensor.Name,
         type: "number",
-        role: "value.humidity",
+        role: "sensor.humidity",
         write: false,
         unit: "%",
         min: 0,
@@ -284,7 +284,7 @@ function addRoomTemperatureSensor(aSensor) {
     addDevice(aSensor, {
         name: aSensor.Name,
         type: "number",
-        role: "value.temperature",
+        role: "sensor.temperature",
         write: false,
         unit: "°C"
     });
@@ -317,7 +317,7 @@ function addLuminanceSensor(aSensor) {
     addDevice(aSensor, {
         name: aSensor.Name,
         type: "number",
-        role: "value.luminance",
+        role: "level.luminance",
         write: false,
         unit: "%",
         min: 0,

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.rwe-smarthome",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "ioBroker rwe-smarthome Adapter",
   "author": {
     "name": "Patrick Arns",
