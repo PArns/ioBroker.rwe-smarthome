@@ -118,6 +118,9 @@ function initSmartHome() {
             case "AlarmActuator":
                 addAlarmActuator(device);
                 break;
+            case "RoomTemperatureActuator":
+                addRoomTemperatureActuator(device);
+                break;
             case "RollerShutterActuator":
                 addRollerShutterActuator(device);
                 break;
@@ -130,23 +133,28 @@ function initSmartHome() {
             case "WindowDoorSensor":
                 addWindowDoorSensor(device);
                 break;
-
+            case "LuminanceSensor":
+                addLuminanceSensor(device);
+                break;
+            case "GenericSensor":
             case "HumiditySensor":
             case "TemperatureSensor":
             case "PushButtonSensor":
             case "SmokeDetectorSensor":
             case "ValveActuator":
+            case "ThermostatActuator":
+            case "MotionDetectionSensor":
                 // ignore
                 break;
             default:
-                adapter.log.info("UNKNOWN DEVICE TYPE " + device.Type);
+                adapter.log.info("UNKNOWN DEVICE TYPE " + device.Type + " WITH NAME " + device.Name);
         }
     });
 }
 
 function getDeviceName(aDevice) {
     var room = smartHomeInstance.getRoomById(aDevice.LCID);
-    return room.Name.capitalize() + "." + aDevice.Name.replaceAll(" ", "-");
+    return room.Name.capitalize() + "." + aDevice.Name.replaceAll(" ", "-").replaceAll("---", "-").replaceAll("--", "-");
 }
 
 function addDevice(aDevice, common, type, useFriendlyState) {
@@ -245,8 +253,18 @@ function addRollerShutterActuator(aActuator) {
         name: aActuator.Name,
         type: "number",
         role: "value.position",
-        write: false,
+        write: true,
         unit: "%"
+    });
+}
+
+function addRoomTemperatureActuator(aActuator) {
+    addDevice(aActuator, {
+        name: aActuator.Name,
+        type: "number",
+        role: "value.temperature",
+        write: true,
+        unit: "°C"
     });
 }
 
@@ -293,4 +311,16 @@ function addWindowDoorSensor(aSensor) {
         role: role,
         write: false
     }, "state");
+}
+
+function addLuminanceSensor(aSensor) {
+    addDevice(aSensor, {
+        name: aSensor.Name,
+        type: "number",
+        role: "value.luminance",
+        write: false,
+        unit: "%",
+        min: 0,
+        max: 100
+    });
 }
