@@ -1,6 +1,6 @@
 {
   "name": "iobroker.rwe-smarthome",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "ioBroker rwe-smarthome Adapter",
   "author": {
     "name": "Patrick Arns",
@@ -25,7 +25,7 @@
     "url": "https://github.com/PArns/ioBroker.rwe-smarthome"
   },
   "dependencies": {
-    "node-rwe-smarterhome-lib": "^0.2.0"
+    "node-rwe-smarterhome-lib": "^0.2.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

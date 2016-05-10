@@ -74,6 +74,11 @@ adapter.on('message', function (obj) {
 adapter.on('ready', function () {
     if (adapter.config.ip && adapter.config.user && adapter.config.password) {
         smartHomeInstance = new smartHome(adapter.config.ip);
+
+        smartHomeInstance.on("Debug", function (debugObject) {
+            adapter.log.info("DEBUG INFO: " + JSON.stringify(debugObject));
+        });
+        
         smartHomeInstance.login(adapter.config.user, adapter.config.password, function (res, error) {
             if (res) {
                 smartHomeInstance.init(initSmartHome);
@@ -94,10 +99,6 @@ adapter.on('ready', function () {
             } else {
                 adapter.log.error(JSON.stringify(error));
             }
-        });
-
-        smartHomeInstance.on("Debug", function (debugObject) {
-            adapter.log.info("DEBUG INFO: " + JSON.stringify(debugObject));
         });
     } else {
         adapter.log.error("RWE SmartHome is missing login data! Please go to the module admin and add login information");
@@ -310,7 +311,7 @@ function addWindowDoorSensor(aSensor) {
         type: "boolean",
         role: role,
         write: false
-    }, "state");
+    });
 }
 
 function addLuminanceSensor(aSensor) {
