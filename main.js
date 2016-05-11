@@ -40,7 +40,7 @@ function statusChanged(id, state) {
         } else {
             if (state && !state.ack) {
                 var device = smartHomeInstance.getDeviceById(obj.native.id);
-
+                
                 if (device) {
                     var cVal = device.setState(state.val);
 
@@ -87,7 +87,7 @@ adapter.on('ready', function () {
                     adapter.getObject(getDeviceName(aDevice), function (err, obj) {
                         if (obj) {
                             adapter.setState(getDeviceName(aDevice), {
-                                val: obj.native.friendlyState ? aDevice.getFriendlyState() : aDevice.getState(),
+                                val: aDevice.getState(),
                                 ack: true
                             });
                         }
@@ -158,30 +158,21 @@ function getDeviceName(aDevice) {
     return room.Name.capitalize() + "." + aDevice.Name.replaceAll(" ", "-").replaceAll("---", "-").replaceAll("--", "-");
 }
 
-function addDevice(aDevice, common, type, useFriendlyState) {
+function addDevice(aDevice, common, type) {
     var deviceName = getDeviceName(aDevice);
 
     if (typeof type == "undefined")
         type = "state";
-
-    var currentState = false;
-
-    if (typeof useFriendlyState == "undefined") {
-        currentState = aDevice.getState();
-        useFriendlyState = false;
-    } else if (useFriendlyState === true)
-        currentState = aDevice.getFriendlyState();
-
+    
     adapter.setObjectNotExists(deviceName, {
         type: type,
         common: common,
         native: {
-            id: aDevice.Id,
-            friendlyState: useFriendlyState
+            id: aDevice.Id
         }
     });
 
-    adapter.setState(deviceName, {val: currentState, ack: true});
+    adapter.setState(deviceName, {val: aDevice.getState(), ack: true});
 }
 
 function addSwitchActuator(aSwitch) {
@@ -198,7 +189,11 @@ function addSwitchActuator(aSwitch) {
     addDevice(aSwitch, {
         name: aSwitch.Name,
         type: 'boolean',
-        role: role
+        role: role,
+        states: {
+            "true": "ON",
+            "false": "OFF"
+        }
     });
 }
 
@@ -221,7 +216,7 @@ function addGenericActuator(aActuator) {
         case "NumericProperty":
             type = "number";
             role = "indicator";
-            write = false;
+            write = true;
             break;
         case "DateTimeProperty":
             type = "object";
@@ -245,7 +240,12 @@ function addAlarmActuator(aActuator) {
     addDevice(aActuator, {
         name: aActuator.Name,
         type: "boolean",
-        role: "sensor.fire"
+        role: "sensor.fire",
+        write: false,
+        states: {
+            "true": "ALARM",
+            "false": "NO ALARM"
+        }
     });
 }
 
@@ -310,7 +310,11 @@ function addWindowDoorSensor(aSensor) {
         name: aSensor.Name,
         type: "boolean",
         role: role,
-        write: false
+        write: false,
+        states: {
+            "true": "OPEN",
+            "false": "CLOSED"
+        }
     });
 }
 
