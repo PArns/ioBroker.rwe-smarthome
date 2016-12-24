@@ -6,6 +6,9 @@ This adapter can be used to add the RWE Smarthome central to ioBroker
 
 ## Changelog
 
+## 0.1.10
+    Added ability to interpret integers as booleans for switches
+
 ## 0.1.9
     Added nice descriptions for states
     Fixed GenericActuator types

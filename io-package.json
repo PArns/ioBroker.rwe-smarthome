@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "rwe-smarthome",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "title": "RWE Smarthome Adapter",
     "license": "GPLv2",
     "desc": {
