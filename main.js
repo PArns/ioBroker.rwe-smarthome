@@ -253,9 +253,11 @@ function addRollerShutterActuator(aActuator) {
     addDevice(aActuator, {
         name: aActuator.Name,
         type: "number",
-        role: "value.position",
+        role: "level.blind",
         write: true,
-        unit: "%"
+        unit: "%",
+        min: 0,
+        max: 100
     });
 }
 
@@ -263,7 +265,7 @@ function addRoomTemperatureActuator(aActuator) {
     addDevice(aActuator, {
         name: aActuator.Name,
         type: "number",
-        role: "value.temperature",
+        role: "level.temperature",
         write: true,
         unit: "°C"
     });
@@ -322,7 +324,7 @@ function addLuminanceSensor(aSensor) {
     addDevice(aSensor, {
         name: aSensor.Name,
         type: "number",
-        role: "level.luminance",
+        role: "sensor.luminance",
         write: false,
         unit: "%",
         min: 0,
