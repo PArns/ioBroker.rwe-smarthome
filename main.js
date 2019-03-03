@@ -9,7 +9,7 @@ String.prototype.replaceAll = function (search, replacement) {
     return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-var utils = require(__dirname + '/lib/utils'); // Get common adapter utils
+var utils = require('@iobroker/adapter-core'); // Get common adapter utils
 var smartHome = require("node-rwe-smarterhome-lib");
 var adapter = utils.adapter('rwe-smarthome');
 
