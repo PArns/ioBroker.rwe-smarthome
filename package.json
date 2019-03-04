@@ -25,7 +25,8 @@
     "url": "https://github.com/PArns/ioBroker.rwe-smarthome"
   },
   "dependencies": {
-    "node-rwe-smarterhome-lib": "^0.2.3"
+    "node-rwe-smarterhome-lib": "^0.2.3",
+    "@iobroker/adapter-core": "^1.0.3"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
@@ -38,8 +39,7 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-exec": "^3.0.0",
     "mocha": "^6.0.2",
-    "chai": "^4.2.0",
-    "@iobroker/adapter-core": "^1.0.3"
+    "chai": "^4.2.0"
   },
   "bugs": {
     "url": "https://github.com/PArns/ioBroker.rwe-smarthome/issues"
