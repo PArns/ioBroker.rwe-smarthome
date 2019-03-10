@@ -1,6 +1,6 @@
 ![Logo](admin/rwe-smarthome.png)
 # ioBroker.rwe-smarthome
-=================
+![Number of Installations](http://iobroker.live/badges/rwe-smarthome-installed.svg) ![Number of Installations](http://iobroker.live/badges/rwe-smarthome-stable.svg) =================
 
 This adapter can be used to add the RWE Smarthome central to ioBroker
 
